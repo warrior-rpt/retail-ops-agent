@@ -1,0 +1,68 @@
+# ===============================
+# Python
+# ===============================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# ===============================
+# Environment / Secrets
+# ===============================
+.env
+.env.*
+!.env.example
+
+# ===============================
+# AWS / Serverless
+# ===============================
+.aws-sam/
+.cdk.out/
+cdk.context.json
+*.zip
+
+# ===============================
+# Logs & Runtime Artifacts
+# ===============================
+*.log
+logs/
+coverage/
+htmlcov/
+.pytest_cache/
+
+# ===============================
+# IDEs / Editors
+# ===============================
+.vscode/
+.idea/
+*.iml
+
+# ===============================
+# macOS
+# ===============================
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# ===============================
+# Testing / Reports
+# ===============================
+.tox/
+.nox/
+.mypy_cache/
+.ruff_cache/
+
+# ===============================
+# Jupyter (just in case)
+# ===============================
+.ipynb_checkpoints/
