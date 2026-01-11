@@ -18,6 +18,7 @@ class SalesData:
         except ClientError as e:
             print(f"Error reading sales data: {e}")
             return {}
+
     @staticmethod
     def get_all_skus() -> list:
         try:
@@ -26,4 +27,3 @@ class SalesData:
         except ClientError as e:
             print(f"Error scanning sales table: {e}")
             return []
-

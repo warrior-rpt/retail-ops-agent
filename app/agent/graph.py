@@ -2,11 +2,12 @@ from langgraph.graph import StateGraph, END
 from app.agent.state import AgentState
 from app.agent.prompts import SYSTEM_PROMPT
 from app.llm.bedrock_client import get_llm
-from app.tools.sales import analyze_sales_trend
-from app.tools.inventory import get_inventory_status
 from app.models.domain import AgentDecision
 from app.memory.dynamo_repo import AgentMemory
 from app.memory.sales_data import SalesData
+from app.agent.risk import classify_risk
+from app.agent.auto_approve import auto_approve_node
+from app.agent.escalate import escalate_node
 
 llm = get_llm()
 
@@ -21,16 +22,14 @@ def analyze_node(state: AgentState) -> AgentState:
 
     # Load sales data
     sales_record = SalesData.get_sales(sku)
-    last_7days_sales = sales_record.get("last_7days_sales", "0")
-    forecast = sales_record.get("forecast", "0")
 
     prompt = f"""
 {SYSTEM_PROMPT}
 
-Analyze the following signals and identify operational risks.
+Analyze the following operational signals for SKU {sku} and identify risks.
 
-Sales (last 7 days): {last_7days_sales}
-Forecast: {forecast}
+Operational Data:
+{sales_record}
 
 Previous Memory:
 Action: {past_action}
@@ -40,9 +39,15 @@ Return a bullet list of detected risks.
 """
 
     response = llm.invoke(prompt)
+    detected_risks = response.content.splitlines()
 
-    state["sales_summary"] = f"Sales: {last_7days_sales}, Forecast: {forecast}"
-    state["detected_risks"] = response.content.splitlines()
+    risk_level = classify_risk(detected_risks)
+
+    state.update({
+        "detected_risks": detected_risks,
+        "risk_level": risk_level
+    })
+
     return state
 
 
@@ -96,17 +101,38 @@ def act_node(state: AgentState) -> AgentState:
 
 
 
-def build_agent_graph():
+def route_by_risk(state: dict) -> str:
+    """
+    LangGraph routing function.
+    Must return the name of the next node.
+    """
+    return state["risk_level"]
+
+
+def build_graph():
     graph = StateGraph(AgentState)
 
     graph.add_node("analyze", analyze_node)
     graph.add_node("plan", plan_node)
     graph.add_node("act", act_node)
+    graph.add_node("auto_approve", auto_approve_node)
+    graph.add_node("escalate", escalate_node)
 
     graph.set_entry_point("analyze")
 
-    graph.add_edge("analyze", "plan")
+    graph.add_conditional_edges(
+        "analyze",
+        route_by_risk,
+        {
+            "HIGH": "escalate",
+            "MEDIUM": "plan",
+            "LOW": "auto_approve"
+        }
+    )
+
     graph.add_edge("plan", "act")
     graph.add_edge("act", END)
+    graph.add_edge("auto_approve", END)
+    graph.add_edge("escalate", END)
 
     return graph.compile()

@@ -1,34 +1,20 @@
-from app.agent.graph import analyze_node, plan_node, act_node
 from app.memory.sales_data import SalesData
+from app.agent.graph import build_graph
 from dataclasses import asdict
-from app.tools.notification import Notifier
+
+graph = build_graph()
 
 def handler(event, context=None):
     results = []
 
-    skus = SalesData.get_all_skus()
-
-    for sku in skus:
-        state = {}
-        state["sku"] = sku
-
-        state = analyze_node(state)
-        state = plan_node(state)
-        state = act_node(state)
+    for sku in SalesData.get_all_skus():
+        final_state = graph.invoke({"sku": sku})
 
         results.append({
             "sku": sku,
-            "decision": asdict(state["final_decision"])
+            "risk_level": final_state["risk_level"],
+            "decision": asdict(final_state["final_decision"])
         })
-
-    # Send summary notification
-    summary_msg = "\n".join(
-        [f"{r['sku']}: {r['decision']['decision']}" for r in results]
-    )
-    Notifier.send_email(
-        subject="Retail Ops Agent – Daily Decisions",
-        message=summary_msg
-    )
 
     return results
 

@@ -3,6 +3,8 @@ from app.models.domain import AgentDecision
 
 
 class AgentState(TypedDict):
+    sku: str
+    risk_level: str
     sales_summary: str
     inventory_summary: str
     detected_risks: List[str]
