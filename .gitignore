@@ -33,6 +33,7 @@ cdk.context.json
 lambda_package/
 response.json
 lambda-trust-policy.json
+lambda-execution-policy.json
 
 # ===============================
 # Logs & Runtime Artifacts
