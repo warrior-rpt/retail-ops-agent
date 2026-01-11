@@ -25,7 +25,10 @@ def handler(event, context=None):
     summary_msg = "\n".join(
         [f"{r['sku']}: {r['decision']['decision']}" for r in results]
     )
-    Notifier.send_email("Retail Ops Agent Decisions", summary_msg)
+    Notifier.send_email(
+        subject="Retail Ops Agent – Daily Decisions",
+        message=summary_msg
+    )
 
     return results
 
