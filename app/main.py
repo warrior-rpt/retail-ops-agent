@@ -1,9 +1,12 @@
+
+from app.services.decision_service import run_agent
+
+
 def handler(event, context=None):
-    return {
-        "status": "ok",
-        "message": "Retail Ops Agent bootstrap successful"
-    }
+    return run_agent(event)
 
 
 if __name__ == "__main__":
-    print(handler({}))
+    response = handler({})
+    print(response)
+

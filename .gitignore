@@ -30,6 +30,9 @@ env/
 .cdk.out/
 cdk.context.json
 *.zip
+lambda_package/
+response.json
+lambda-trust-policy.json
 
 # ===============================
 # Logs & Runtime Artifacts
