@@ -1,3 +1,5 @@
+
+
 def get_inventory_status(sku: str, region: str) -> str:
     # Mock implementation (replace with API later)
     return (

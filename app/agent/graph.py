@@ -5,34 +5,44 @@ from app.llm.bedrock_client import get_llm
 from app.tools.sales import analyze_sales_trend
 from app.tools.inventory import get_inventory_status
 from app.models.domain import AgentDecision
+from app.memory.dynamo_repo import AgentMemory
+from app.memory.sales_data import SalesData
 
 llm = get_llm()
 
 
 def analyze_node(state: AgentState) -> AgentState:
-    sales_summary = analyze_sales_trend(sku="SKU-A", region="US-WEST")
-    inventory_summary = get_inventory_status(sku="SKU-A", region="US-WEST")
+    sku = state.get("sku", "SKU-A")  # Default if missing
+
+    # Load past memory
+    memory = AgentMemory.get_memory(sku)
+    past_action = memory.get("last_action", "No past action")
+    past_decision = memory.get("last_decision", "No past decision")
+
+    # Load sales data
+    sales_record = SalesData.get_sales(sku)
+    last_7days_sales = sales_record.get("last_7days_sales", "0")
+    forecast = sales_record.get("forecast", "0")
 
     prompt = f"""
 {SYSTEM_PROMPT}
 
 Analyze the following signals and identify operational risks.
 
-Sales:
-{sales_summary}
+Sales (last 7 days): {last_7days_sales}
+Forecast: {forecast}
 
-Inventory:
-{inventory_summary}
+Previous Memory:
+Action: {past_action}
+Decision: {past_decision}
 
 Return a bullet list of detected risks.
 """
 
     response = llm.invoke(prompt)
 
-    state["sales_summary"] = sales_summary
-    state["inventory_summary"] = inventory_summary
+    state["sales_summary"] = f"Sales: {last_7days_sales}, Forecast: {forecast}"
     state["detected_risks"] = response.content.splitlines()
-
     return state
 
 
@@ -60,12 +70,10 @@ Return only action statements.
 
 
 def act_node(state: AgentState) -> AgentState:
+    sku = state.get("sku", "UNKNOWN")
     actions = state.get("proposed_actions", [])
 
-    # In a real system, this would dispatch real APIs
-    executed_actions = []
-    for action in actions:
-        executed_actions.append(action)
+    executed_actions = [action for action in actions]
 
     decision = AgentDecision(
         decision="Inventory Reorder Recommended",
@@ -74,8 +82,17 @@ def act_node(state: AgentState) -> AgentState:
         rationale="Detected stockout risk combined with demand spike."
     )
 
+    # Save to memory
+    AgentMemory.update_memory(
+    sku=state["sku"],
+    last_action="; ".join(executed_actions),
+    last_decision=decision.decision
+)
+
+
     state["final_decision"] = decision
     return state
+
 
 
 
