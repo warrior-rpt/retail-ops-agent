@@ -1,3 +1,5 @@
+import re
+
 def classify_risk(detected_risks: list[str]) -> str:
     """
     Deterministic risk classification based on detected risks.
@@ -14,34 +16,34 @@ def classify_risk(detected_risks: list[str]) -> str:
     
     # HIGH risk indicators - truly critical situations
     high_keywords = [
-        "critical stockout",
-        "confirmed stockout", 
-        "supplier disruption confirmed",
-        "compliance violation",
-        "fraud detected",
-        "severe shortage",
-        "emergency"
+        r"critical stockout",
+        r"confirmed stockout", 
+        r"supplier disruption confirmed",
+        r"compliance violation",
+        r"fraud detected",
+        r"severe shortage",
+        r"emergency"
     ]
     
     # MEDIUM risk indicators - operational concerns
     medium_keywords = [
-        "stockout risk",
-        "potential stockout",
-        "delay",
-        "trend",
-        "forecast",
-        "monitor",
-        "reorder",
-        "inventory low",
-        "demand spike"
+        r"stockout risk",
+        r"potential stockout",
+        r"delay",
+        r"trend",
+        r"forecast",
+        r"monitor",
+        r"\breorder\b",  # Only match 'reorder' as a full word
+        r"inventory low",
+        r"demand spike"
     ]
     
-    # Check for HIGH risk (use stricter matching)
-    if any(keyword in text for keyword in high_keywords):
+    # Check for HIGH risk
+    if any(re.search(keyword, text) for keyword in high_keywords):
         return "HIGH"
     
     # Check for MEDIUM risk
-    if any(keyword in text for keyword in medium_keywords):
+    if any(re.search(keyword, text) for keyword in medium_keywords):
         return "MEDIUM"
     
     return "LOW"
