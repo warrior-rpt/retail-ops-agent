@@ -13,3 +13,5 @@ def test_low_risk_auto_approval(mock_llm):
 
     assert result["risk_level"] == "LOW"
     assert result["final_decision"].decision == "Auto-approved"
+    assert result["tool_plan"] == []
+    assert result["tool_results"] == []

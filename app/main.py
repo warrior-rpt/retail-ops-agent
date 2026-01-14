@@ -1,10 +1,11 @@
 from app.memory.sales_data import SalesData
-from app.agent.graph import build_graph
+from app.agent.graph import build_graph, save_graph_visualization
 from dataclasses import asdict
 from langsmith import traceable
 import os
 
 graph = build_graph()
+save_graph_visualization(graph, "agent_graph.png")
 
 @traceable(name="retail_ops_agent_handler", project_name=os.getenv("LANGSMITH_PROJECT", "pr-new-stab-27"))
 def handler(event, context=None):
@@ -28,8 +29,10 @@ def handler(event, context=None):
         
         results.append({
             "sku": sku,
-            "risk_level": final_state["risk_level"],
-            "decision": decision_dict
+            "risk_level": final_state.get("risk_level"),
+            "decision": asdict(final_state["final_decision"]),
+            "tool_plan": final_state.get("tool_plan", []),
+            "tool_results": final_state.get("tool_results", [])
         })
 
     return results

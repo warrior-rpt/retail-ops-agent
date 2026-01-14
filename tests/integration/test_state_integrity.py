@@ -9,4 +9,5 @@ def test_medium_risk_does_not_escalate(mock_sns):
 
     assert result["risk_level"] == "MEDIUM"
     assert "proposed_actions" in result
+    assert "tool_results" in result
     assert mock_sns.called is False

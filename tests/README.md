@@ -1,6 +1,6 @@
 ## Testing & Validation
 
-This PoC includes lightweight evaluation focused on behavioral correctness rather than LLM text quality.
+This PoC includes lightweight evaluation focused on behavioral correctness.
 
 Validation covers:
 - Deterministic risk routing (LOW / MEDIUM / HIGH)

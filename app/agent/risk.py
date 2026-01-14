@@ -30,12 +30,10 @@ def classify_risk(detected_risks: list[str]) -> str:
         r"stockout risk",
         r"potential stockout",
         r"delay",
-        r"trend",
-        r"forecast",
-        r"monitor",
-        r"\breorder\b",  # Only match 'reorder' as a full word
         r"inventory low",
-        r"demand spike"
+        r"below reorder point",
+        r"demand spike",
+        r"supply chain issues"
     ]
     
     # Check for HIGH risk
