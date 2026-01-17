@@ -1,5 +1,6 @@
 from typing import Dict, Any
 from app.tools.notification import Notifier
+from .inventory import reorder_inventory
 
 def send_sns_alert(sku: str, severity: str, message: str) -> Dict[str, Any]:
     """
@@ -10,13 +11,6 @@ def send_sns_alert(sku: str, severity: str, message: str) -> Dict[str, Any]:
     print(f"[TOOL] SNS Alert Sent | SKU={sku} | Severity={severity}")
     return {"status": "sent"}
 
-
-def reorder_inventory(sku: str, quantity: int) -> Dict[str, Any]:
-    """
-    Simulates inventory reorder.
-    """
-    print(f"[TOOL] Reorder triggered | SKU={sku} | Qty={quantity}")
-    return {"status": "reordered"}
 
 TOOLS = {
     "send_sns_alert": send_sns_alert,

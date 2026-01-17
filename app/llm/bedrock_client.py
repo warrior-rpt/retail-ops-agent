@@ -6,6 +6,6 @@ def get_llm():
     return ChatBedrock(
         model_id=settings.BEDROCK_MODEL_ID,
         region_name=settings.AWS_REGION,
-        temperature=0.2,
+        temperature=0,
         max_tokens=1024,
     )
