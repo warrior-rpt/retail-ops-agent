@@ -20,9 +20,8 @@ if not bedrock_model_id:
     # Try fetching from Parameter Store
     bedrock_model_id = get_ssm_parameter("/retail-ops/bedrock-model-id", region=aws_region)
 
-# Fallback for local development if both fail
 if not bedrock_model_id:
-    bedrock_model_id = "anthropic.claude-3-haiku-20240307-v1:0"
+    raise ValueError("BEDROCK_MODEL_ID not found in environment or AWS Parameter Store (/retail-ops/bedrock-model-id)")
 
 settings = Settings(
     AWS_REGION=aws_region,
